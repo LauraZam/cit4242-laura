@@ -1,0 +1,17 @@
+$kind: http-request
+name: http://localhost:8080/create
+description: ""
+url: http://localhost:8080/users
+method: GET
+body:
+  type: json
+  content: "{\r
+
+    \  \"firstName\": \"Jane\",\r
+
+    \  \"lastName\": \"Doe\",\r
+
+    \  \"email\": \"Jane.doe@example.com\"\r
+
+    }"
+order: 1788410361747
