@@ -21,13 +21,17 @@ public class TestController {
 
     private final ResourceRepository repository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public TestController(ResourceRepository repository) {
         this.repository = repository;
     }
 
     @PostMapping("/create")
     public ResponseEntity<HelloResponse> createResource(@RequestBody HelloRequest request) {
-        SavedResource resource = new SavedResource(request.getName());
+        // PPTX Update: Records use request.name() instead of request.getName()
+        SavedResource resource = new SavedResource(request.name());
         SavedResource saved = repository.save(resource);
         return new ResponseEntity<>(new HelloResponse("Saved to H2 with ID " + saved.getId() + ": " + saved.getName()), HttpStatus.CREATED);
     }
@@ -38,16 +42,17 @@ public class TestController {
         if (existingRecord.isPresent()) {
             SavedResource resource = existingRecord.get();
             String oldName = resource.getName();
-            resource.setName(request.getName());
+            // PPTX Update: Records use request.name() instead of request.getName()
+            resource.setName(request.name());
             repository.save(resource);
-            return new ResponseEntity<>(new HelloResponse("Rewrote ID " + id + " from '" + oldName + "' to '" + request.getName() + "'"), HttpStatus.OK);
+            return new ResponseEntity<>(new HelloResponse("Rewrote ID " + id + " from '" + oldName + "' to '" + request.name() + "'"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new HelloResponse("ID " + id + " not found in DB"), HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<SavedResource>> getAllResources() {
-        List<SavedResource> resources = repository.findAll(); // Берем всё из H2
+        List<SavedResource> resources = repository.findAll();
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
@@ -60,17 +65,16 @@ public class TestController {
         return new ResponseEntity<>(new HelloResponse("ID " + id + " not found in DB"), HttpStatus.NOT_FOUND);
     }
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @PostMapping("/users")
     @Transactional
     public ColumnResponseDto createUser(@RequestBody HelloRequest request) {
+        // PPTX Update: Map request data to the User entity using record accessors
         User user = new User(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getEmail()
+                request.firstName(),
+                request.lastName(),
+                request.email()
         );
+
         entityManager.persist(user);
 
         return new ColumnResponseDto(
